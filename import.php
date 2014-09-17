@@ -3,6 +3,8 @@ include "include/mysql_psw.inc";
 include "lib/db_mysql.inc";
 include "include/function.inc";
 
+// Expired: upload file has new format
+
 $upload_dir = "upload/";
 
 $device = load_class("Device");
