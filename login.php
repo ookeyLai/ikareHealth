@@ -27,8 +27,8 @@ if ($switchAcc && count($_SESSION['agroupID'])>1) {
 		document.location="index.php";
 		</script>
 		<?php
-}
-?>
+		}
+		?>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?=$_LOGIN;?></title>
