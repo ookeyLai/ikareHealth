@@ -1,0 +1,290 @@
+<!DOCTYPE HTML>
+<html>
+	
+<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<title>i-Kare DataTx</title>
+	<!-- jQuery Mobile setup -->
+    <link rel="stylesheet" href="mylibs/jQueryMobile/jquery.mobile-1.1.0.min.css" />
+    <script src="mylibs/jquery-1.7.2.min.js"></script>
+    <script src="mylibs/jQueryMobile/jquery.mobile-1.1.0.min.js"></script>
+   	<!--
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.0-beta.1/jquery.mobile-1.4.0-beta.1.min.css">
+	<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.4.0-beta.1/jquery.mobile-1.4.0-beta.1.min.js"></script>
+	-->
+	<!-- Phonegap setup -->
+	<script src="mylibs/cordova-2.9.0.js"></script>
+
+	<!-- css and js for this application -->	
+<!-- 
+	<link rel="stylesheet" href="css/app.css" />
+	<script src="js/app.js"></script> 
+-->
+<script>
+
+// global variables
+var errorCode=0;
+var vAccountID="Account", 
+	vAccountPW="Password", 
+	vDataSvrIP="panda.25u.com", 
+	vMsgSvrIP ="panda.25u.com",
+	vID = 0;
+var vDataSvrURL = vMsgSvrURL = "";
+var vDataSvrRUN = "upload.php";
+var vMsgSvrRUN = "mymessages.php";
+var	vDataSvrURL = "http://"+vDataSvrIP+":80/myhealth/"+vDataSvrRUN;
+var	vMsgSvrURL = "http://"+vMsgSvrIP+":80/myhealth/messager/"+vMsgSvrRUN;
+
+var keyAccountID="i-Kare1.accountID",
+	keyAccountPW="i-Kare1.accountPW",
+	keyDataSvrIP="i-Kare1.dataSvrIP",
+	keyMsgSvrIP ="i-Kare1.msgSvrIP";
+
+var uploadDir="i-Kare", uploadFile="upload.txt";
+	
+// Phonegap is loaded and can be used
+function onDeviceReady(){
+//	$('#backBtn').hide();
+	
+//	$('#autoTxBtn').bind('click', autoTx);
+	$('#bpDevTxBtn').bind('click', bpDeviceTx);
+	$('#svrTxBtn').bind('click', serverTx);
+	$('#msgBoxBtn').bind('click', messageBox);
+	$('#settingBtn').bind('click', settingInit);
+	$('#exitBtn').bind('click', exit);
+
+	$('#settingSaveBtn').bind('click', settingSave);
+	$('#settingCancelBtn').bind('click', settingCancel);
+	
+	$.mobile.allowCrossDomainPages = true; 
+	$.support.cors = true; 
+	settingInit();
+}
+
+function bpDeviceTx() {
+/*
+	$('#bpDevTxBtn').buttonMarkup({theme: 'b'});
+	$('#svrTxBtn'  ).buttonMarkup({theme: 'a'});
+	$('#msgBoxBtn ').buttonMarkup({theme: 'a'});
+*/
+//	alert("bpDevTxBtn click");
+//	showInfo("btDeviceTx done.");
+	errorCode=0;	
+	if(!checkConnection()) {
+		showInfo("network connection need ...");
+		return;
+	}
+	doBTdeviceTx();
+}
+function serverTx() {
+/*
+	$('#bpDevTxBtn').buttonMarkup({theme: 'a'});
+	$('#svrTxBtn'  ).buttonMarkup({theme: 'b'});
+	$('#msgBoxBtn' ).buttonMarkup({theme: 'a'});
+*/
+//	alert("svrTxBtn click");
+	errorCode=0;
+	if(!checkConnection()) {
+		showInfo("network connection need ...");
+		return;
+	}
+
+// file system process
+	doFS();
+	if(!errorCode) {
+		doMetadataFile();
+		if(!errorCode) {
+			doUploadFile();
+		}
+	}
+	else showInfo("do File System error!!");
+	
+//	showInfo("serverTx done.");
+}
+function messageBox() {
+/*
+	$('#bpDevTxBtn').buttonMarkup({theme: 'a'});
+	$('#svrTxBtn'  ).buttonMarkup({theme: 'a'});
+	$('#msgBoxBtn' ).buttonMarkup({theme: 'b'});
+*/
+//	alert("msgBoxBtn click");
+	errorCode=0;
+	if(!checkConnection()) {
+		showInfo("network connection need ...");
+		return;
+	}
+	doGetMessages();
+}
+function autoTx() {
+	
+}
+function settingInit() {
+//	$('#settingForm')[0].reset();
+
+	var storedKey="", storedValue="";
+	var l = window.localStorage.length;
+	for (i=0; i<l; i++) {
+		storedKey = window.localStorage.key(i);
+		if(storedKey.match(/^i-Kare1[.]/)) {
+			storedValue = window.localStorage.getItem(storedKey);
+			if(storedKey == keyAccountID) vAccountID = storedValue;
+			if(storedKey == keyAccountPW) vAccountPW = storedValue;
+			if(storedKey == keyDataSvrIP) { vDataSvrIP = storedValue; 
+										vDataSvrURL = "http://"+vDataSvrIP+":80/myhealth/"+vDataSvrRUN;}
+			if(storedKey == keyMsgSvrIP ) { vMsgSvrIP  = storedValue;
+										vMsgSvrURL = "http://"+vMsgSvrIP+":80/myhealth/messager/"+vMsgSvrRUN;}
+		}	
+	}
+	if (vAccountID) $('#accountID').val(vAccountID);
+	if (vAccountPW) $('#accountPW').val(vAccountPW);
+	if (vDataSvrIP) $('#dataSvrIP').val(vDataSvrIP);
+	if (vMsgSvrIP) 	$('#msgSvrIP').val(vMsgSvrIP);
+	
+//	$.mobile.changePage($('#setting'));  // change screen page
+}
+function exit() {
+	navigator.app.exitApp();  // 
+}
+function settingSave() {
+
+	vAccountID = $('#accountID').val();
+	vAccountPW = $('#accountPW').val();
+	vDataSvrIP = $('#dataSvrIP').val(); vDataSvrURL = "http://"+vDataSvrIP+":80/myhealth/"+vDataSvrRUN;
+	vMsgSvrIP  = $('#msgSvrIP').val(); vMsgSvrURL = "http://"+vMsgSvrIP+":80/myhealth/messager/"+vMsgSvrRUN;
+	
+	window.localStorage.setItem(keyAccountID, vAccountID);
+	window.localStorage.setItem(keyAccountPW, vAccountPW);
+	window.localStorage.setItem(keyDataSvrIP, vDataSvrIP);
+	window.localStorage.setItem(keyMsgSvrIP , vMsgSvrIP);
+	
+	showInfo("New setting is saved.");
+//	$.mobile.changePage($('#home'));  // change to home page
+//	setTimeout(function(){$.mobile.changePage('#home', { transition: "slide"});},300);
+//	$('#settingForm')[0].reset();
+
+}
+function settingCancel() {
+/*
+	if (vAccountID) $('#accountID').val(vAccountID);
+	if (vAccountPW) $('#accountPW').val(vAccountPW);
+	if (vDataSvrIP) $('#dataSvrIP').val(vDataSvrIP);
+	if (vMsgSvrIP) 	$('#msgSvrIP').val(vMsgSvrIP);
+*/	
+
+	showInfo("Setting is not change.");
+//	$.mobile.changePage($('#home'));  // change to home page
+//	setTimeout(function(){$.mobile.changePage('#home', { transition: "slide"});},300);
+	
+//	$('#settingForm')[0].reset();
+//	$('#backBtn').hide();
+
+}
+function showInfo(msg) {
+	$('#sysInfo').html(msg);
+}
+function showInfoAppend(msg) {
+	$('#sysInfo').append(msg);
+}
+function showDate(now) { 
+  var then = now.getFullYear()+'-'+(now.getMonth()+1)+'-'+now.getDay();
+      then += ' '+now.getHours()+':'+now.getMinutes(); 
+  return (then); 
+} 
+function checkConnection() {
+	var networkState = navigator.network.connection.type;
+	if (networkState == Connection.NONE) {
+		alert("No network connection ...");
+		return 0;
+//		$.mobile.changePage($('#home'));  // change to home page
+//		navigator.app.exitApp();    // 離開應用程式
+	}
+	return 1;
+}
+	// handling document ready and phonegap deviceready
+function onLoad() {
+	    document.addEventListener('deviceready', onDeviceReady, false);
+}
+</script>
+</head>
+
+<body onload="onLoad()">
+
+<div data-role="page" id="home">
+      <div data-role="header" >
+            <h1>i-Kare DataTx</h1>
+            <!--
+            <a id="settingBtn" href="#setting" data-icon="gear" class="ui-btn-right" 
+            	data-mini="true">Setting</a>
+            -->
+      </div>
+      <div data-role="content" id="main">
+      	      <h2>Gateway for Data &amp; Messages translate:</h2>
+      	<hr />
+      	<div id="sysInfo">system messages. </div>
+      	<hr />
+      	<input type="button" id="bpDevTxBtn" data-theme="b" value="BP Device Tx">
+      	<input type="button" id="svrTxBtn" data-theme="b" value="Server Tx">
+      	<hr />
+      	<input type="button" id="msgBoxBtn" data-theme="a" value="Message Box">
+      	<hr />
+      	<ul id="resultList" data-role="listview" data-inset="true" data-theme="e">
+      	</ul>
+
+      </div>
+      <div data-role="footer" class="ui-bar"  data-position="fixed" data-mini="true">
+<!--     	
+      	<input type="text" id="sysMsg" value="system messages." 
+      			data-theme="c"  disabled>
+-->
+		<a id="settingBtn" href="#setting" data-role="button" data-icon="gear" 
+			data-mini="true">Setting</a>
+				<a id="exitBtn" href="#" data-role="button" data-icon="back" 
+			data-mini="true">Exit</a>
+      </div>
+</div>
+
+<div data-role="page" id="setting">
+	<div data-role="header">
+            <h1>Setting</h1>
+      </div>
+      <div data-role="content"> 
+      	<form id="settingForm" action="#" method="post">
+      		<div data-role="fieldcontain">
+      			<label for="dataSvrIP">Data Server Address</label>
+      			<input type="text" name="dataSvrIP" id="dataSvrIP" 
+      				required="required" autofocus="autofocus"
+      								placeholder="data server address"/>
+      		</div>
+      		<div data-role="fieldcontain">
+      			<label for="msgSvrIP">Message Server Address</label>
+      			<input type="text" name="msgSvrIP" id="msgSvrIP" 
+      								placeholder="message server address"/>
+      		</div>
+      		<div data-role="fieldcontain">
+      			<label for="accountID">Account ID</label>
+      			<input type="text" name="accountID" id="accountID" 
+      				size="30" maxlength="15" placeholder="account ID"/>
+      		</div>
+      		<div data-role="fieldcontain">
+      			<label for="accountPW">Account Password</label>
+      			<input type="password" name="accountPW" id="accountPW" data-mini="true" 
+      				size="30" maxlength="15" placeholder="account password"/>
+      		</div>     
+      	</form>
+<!--
+      	<a href="#home" data-role="button">Save</a>
+-->
+      </div>
+      <div data-role="footer" class="ui-bar" data-position="fixed">
+		<a id="settingCancelBtn" href="#home" data-role="button" data-icon="delete"
+			data-mini="true">Cancel</a>
+		<a id="settingSaveBtn" href="#home" data-role="button" data-icon="check"
+			data-mini="true">Save</a>
+      </div>
+</div>
+<script src="js/file.js"></script>
+</body>
+
+</html>
