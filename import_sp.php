@@ -92,7 +92,7 @@ if ($dir = opendir($upload_dir)) {
 					$userdev['articles'][16] = $SV;
 					$userdev['articles'][17] = $CO;
 					$itemEntry->import_add($userdev);
-					if ($userdev['itemEntryID']) echo $userdev['itemEntryID']." at ".$userdev['createdTime']."<br>\n";
+					if ($userdev['itemEntryID']) echo "Create ".$userdev['itemEntryID']." at ".$userdev['createdTime']."<br>\n";
 				}
 				// echo "==================<br>";
 			}
