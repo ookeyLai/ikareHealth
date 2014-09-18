@@ -22,13 +22,14 @@ if ($switchAcc && count($_SESSION['agroupID'])>1) {
 			$_SESSION['authority'] = $db->f('authority');
 			$_SESSION['userID'] = $db->f('ID');
 		}
-		?>
+?>
 		<script language="javascript">
 		document.location="index.php";
 		</script>
-		<?php
-		}
-		?>
+<?php
+} 
+?>
+
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?=$_LOGIN;?></title>

@@ -102,7 +102,7 @@ if ($dir = opendir($upload_dir)) {
 		//}
 	}
 	closedir($dir);
-					print_r($userdev);
+	// print_r($userdev);
 	echo "$fcnt files Completed!<br>\n";
 } else {
 	echo "Dir $dir Not existed!\n";

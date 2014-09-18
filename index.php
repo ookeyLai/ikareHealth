@@ -48,9 +48,6 @@ $itemID = $_REQUEST['itemID'];
         $( "#menu3" ).menu();
         $( "#menu4" ).menu();
     });
-    
-    function switchAccount(aid) {
-    }
     </script>
     <style>
     .ui-menu { width: 190px; }
