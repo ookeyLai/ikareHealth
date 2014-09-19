@@ -14,12 +14,11 @@ if (count($vars)) {
 }
 
 $languages = array("en","tw");
-$lang_str = array("en"=>"English","tw"=>"蝜�銝剜�");
+$lang_str = array("en"=>"English","tw"=>"繁體中文");
 
 $level_color= array("","lightblue","lightyellow","pink");
 $tmcolors= array("","lightblue","lightyellow","pink");
 $status_color= array("","lightgreen","#CCCCFF","#CCCCCC","pink");
-
 
 function hide_vars()
 {
