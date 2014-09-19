@@ -23,12 +23,13 @@ if ($switchAcc && count($_SESSION['agroupID'])>1) {
 			$_SESSION['userID'] = $db->f('ID');
 		}
 ?>
-		<script language="javascript">
+<script language="javascript">
 		document.location="index.php";
 		</script>
 <?php
 } 
 ?>
+<html >
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?=$_LOGIN;?></title>
@@ -64,10 +65,10 @@ if ($action=='logout') {
 			}
 			$_SESSION['agroupID'] = $agroupID;
 		?>
-		<script language="javascript">
+<script language="javascript">
 		document.location="index.php";
 		</script>
-		<?php
+<?php
 		} else {
 			unset($_SESSION['name']);
 			unset($_SESSION['username']);
@@ -80,11 +81,14 @@ if ($action=='logout') {
 }
 ?>
 <body>
-<span><center><h2>i-Kare</h2></center></span>
-<table width="300" border="1" align="center">
-	<form id='form2' name='form2' method='post' action='login.php'>
-	<tr>
-    <td align="center"><?=$_LANGUAGE;?>: <select name='lang' onChange='this.form.submit();'>
+	<span><center>
+			<h2>i-Kare</h2>
+		</center></span>
+	<table width="300" border="1" align="center">
+		<form id='form2' name='form2' method='post' action='login.php'>
+			<tr>
+				<td align="center"><?=$_LANGUAGE;?>: <select name='lang'
+					onChange='this.form.submit();'>
         <?php
           foreach ($lang_str as $k=>$v) {
           	  if ($lang==$k) $sel = "SELECTED";
@@ -92,29 +96,28 @@ if ($action=='logout') {
           	  echo "<option value='$k' $sel>$v</option>";
 		  }
         ?>
-        </select>
-    </td>
-    </tr>
-	</form>
-<form id="form1" name="form1" method="post" action="login.php">
-  <tr>
-    <td align="center" bgcolor="#999999"><?=$_LOGIN;?></td>
-  </tr>
-  <tr>
-    <td><?=$_USERNAME;?>: 
-        <input name="username" type="text" id="username" size="20" />
-    </td>
-  </tr>
-  <tr>
-    <td><?=$_PASSWORD;?>: 
+        </select></td>
+			</tr>
+		</form>
+		<form id="form1" name="form1" method="post" action="login.php">
+			<tr>
+				<td align="center" bgcolor="#999999"><?=$_LOGIN;?></td>
+			</tr>
+			<tr>
+				<td><?=$_USERNAME;?>: 
+        <input name="username" type="text" id="username" size="20" /></td>
+			</tr>
+			<tr>
+				<td><?=$_PASSWORD;?>: 
       <input name="password" type="password" id="password" size="20" /></td>
-  </tr>
-  	  <input type='hidden' name='lang' value='<?=$lang;?>'>
-  <tr>
-    <td align="center" bgcolor="#999999"><input type="submit" name="login" id="login" value="<?=$_SUBMIT;?>" /></td>
-  </tr>
-</form>
-</table>
+			</tr>
+			<input type='hidden' name='lang' value='<?=$lang;?>'>
+			<tr>
+				<td align="center" bgcolor="#999999"><input type="submit"
+					name="login" id="login" value="<?=$_SUBMIT;?>" /></td>
+			</tr>
+		</form>
+	</table>
 <?php
 if ($errormsg) {
 	echo "<center><font color=red>".$errormsg."</font></center>";
